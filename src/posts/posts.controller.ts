@@ -57,7 +57,6 @@ export class PostsController {
     @Body() createPostDto: CreatePostDto,
     @UploadedFile() file: any,
   ) {
-    console.log('File received (create):', file);
     return this.postsService.create(createPostDto, file);
   }
 
@@ -68,7 +67,6 @@ export class PostsController {
     @Body() updatePostDto: CreatePostDto,
     @UploadedFile() file: any,
   ) {
-    console.log('File received (update):', file);
     return this.postsService.update(id, updatePostDto, file);
   }
 
