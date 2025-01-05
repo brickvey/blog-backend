@@ -43,13 +43,22 @@ export class PostsController {
   @ApiResponse({ status: 201, description: 'The post has been created' })
   @ApiResponse({ status: 400, description: 'Invalid data' })
   @Post()
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(
+    FileInterceptor('image', {
+      fileFilter: (req, file, callback) => {
+        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
+          return callback(new Error('Invalid file type, only images are allowed'), false);
+        }
+        callback(null, true);
+      },
+    }),
+  )
   async createPost(
     @Body() createPostDto: CreatePostDto,
     @UploadedFile() file: any,
   ) {
-    const filePath = file ? `/uploads/${file.filename}` : null;
-    return this.postsService.create({ ...createPostDto, image: filePath });
+    console.log('File received (create):', file);
+    return this.postsService.create(createPostDto, file);
   }
 
   @Patch(':id')
@@ -57,13 +66,10 @@ export class PostsController {
   async updatePost(
     @Param('id') id: string,
     @Body() updatePostDto: CreatePostDto,
-    @UploadedFile() file: any, 
+    @UploadedFile() file: any,
   ) {
-    const filePath = file ? `/uploads/${file.filename}` : null;
-
-    const updatedData = { ...updatePostDto, ...(filePath && { image: filePath }) };
-  
-    return this.postsService.update(id, updatedData);
+    console.log('File received (update):', file);
+    return this.postsService.update(id, updatePostDto, file);
   }
 
   @ApiOperation({ summary: 'Delete a post' })
